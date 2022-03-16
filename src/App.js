@@ -1,28 +1,54 @@
 import "./App.css";
+import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
+import Home from "./pages/Home";
+import CreatePost from "./pages/CreatePost";
+import Post from "./pages/Post";
+import Registration from "./pages/Registration";
+import Login from "./pages/Login";
+import {AuthContext} from "./helpers/AuthContext"
+import {useState, useEffect} from 'react'
 import axios from "axios";
-import { useEffect, useState } from "react";
 
 function App() {
-  const [listOfPost, setListOfPost] = useState([]);
+  const [authState, setAuthState] = useState(false)
 
-  useEffect(() => {
-    axios.get("http://localhost:5000/posts").then((response) => {
-      console.log(response.data);
-      setListOfPost(response.data);
-    });
-  }, []);
-
+  useEffect(()=>{
+    axios.get("http://localhost:5000/auth/auth",{
+      headers:{
+        accessToken: localStorage.getItem("accessToken")
+      }
+    }).then((response)=>{
+      if(response.data.error){
+        setAuthState(false)
+      }else{
+        setAuthState(true)
+      }
+    })
+  }, [])
   return (
     <div className="App">
-      {listOfPost.map((value, key) => {
-        return (
-          <div className="post">
-            <div className="title">{value.title}</div>
-            <div className="body">{value.postText}</div>
-            <div className="body">{value.username}</div>
-          </div>
-        );
-      })}
+      <AuthContext.Provider value={{authState, setAuthState}}>
+      <BrowserRouter>
+        <div className="navbar">
+        <Link to="/"> Home Page</Link>
+          {authState && (
+            <>
+          <Link to="/"> Home Page</Link>
+          <Link to="/createpost"> Create A Post</Link>
+          <Link to="/login"> Login</Link>
+          <Link to="/registration"> Registration</Link>
+          </>
+          )}
+        </div>
+        <Routes>
+          <Route path="/" exact element={<Home />}></Route>
+          <Route path="/createpost" exact element={<CreatePost />}></Route>
+          <Route path="/post/:id" exaxt element={<Post />}></Route>
+          <Route path="/registration" exaxt element={<Registration />}></Route>
+          <Route path="login" exaxt element={<Login />}></Route>
+        </Routes>
+      </BrowserRouter>
+      </AuthContext.Provider>
     </div>
   );
 }
