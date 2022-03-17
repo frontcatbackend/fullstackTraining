@@ -32,19 +32,27 @@ function App() {
         <div className="navbar">
         <Link to="/"> Home Page</Link>
           {authState && (
-            <>
-          <Link to="/"> Home Page</Link>
+         <>
           <Link to="/createpost"> Create A Post</Link>
           <Link to="/login"> Login</Link>
           <Link to="/registration"> Registration</Link>
           </>
           )}
         </div>
-        <Routes>
-          <Route path="/" exact element={<Home />}></Route>
+
+        {authState && (
+          <div className="App">
+          <Routes>
           <Route path="/createpost" exact element={<CreatePost />}></Route>
           <Route path="/post/:id" exaxt element={<Post />}></Route>
           <Route path="/registration" exaxt element={<Registration />}></Route>
+          <Route path="login" exaxt element={<Login />}></Route>
+          </Routes>
+          </div>
+        )}
+        <Routes>
+          <Route path="/" exact element={<Home />}></Route>
+          <Route path="/post/:id" exaxt element={<Post />}></Route>
           <Route path="login" exaxt element={<Login />}></Route>
         </Routes>
       </BrowserRouter>

@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from '../helpers/AuthContext';
+
 
 
 const Post = () => {
@@ -8,6 +10,9 @@ const Post = () => {
     const [postObject, setPostObject] = useState({})
     const [comments, setComments] = useState([])
     const [newComment, setNewComment] = useState("")
+    const {authState} = useContext(AuthContext)
+
+    const history = useNavigate()
 
     useEffect(() => {
         axios.get(`http://localhost:5000/posts/byId/${id}`).then((response) => {
@@ -48,21 +53,39 @@ const Post = () => {
 
         })
     }
+
+    const deletePost = (id) =>{
+        axios.delete(`http://localhost:5000/posts/${id}`,{
+            headers:{ accessToken: localStorage.getItem("accessToken")}
+        }).then(()=>{
+            history("/")
+        })
+    }
+
     return (
-        <div className='postPage'>
-            <div className='leftSide'>
-                <div className='post' id="individual">
-                    <div className='title'>{postObject.title}</div>
-                    <div className='body'>{postObject.postText}</div>
-                    <div className='footer'>{postObject.username}</div>
-                </div>
+        <div className="postPage">
+        <div className="leftSide">
+          <div className="post" id="individual">
+            <div className="title"> {postObject.title} </div>
+            <div className="body">{postObject.postText}</div>
+            <div className="footer">
+              {postObject.username}
+              {authState && (
+                   <button onClick={()=>{
+                    deletePost(postObject.id)
+                }}>Delete</button>
+              )}
+             
             </div>
+          </div>
+        </div>
             <div className='rightSide'>
                 <div className='addCommentContainer'>
                     <input type="text" placeholder='Comments' value={newComment} onChange={(e) => {
                         setNewComment(e.target.value)
                     }} />
-                    <button onClick={addComment}> Add Comment</button>
+                    {authState && (<button onClick={addComment}> Add Comment</button>)}
+                    
                     <div className='listOfComments'>
                         {comments.map((comment, key) => {
                             return <div key={key} className='comment'>
